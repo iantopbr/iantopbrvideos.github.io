@@ -1,41 +1,168 @@
-<h1>este é um site de teste</h1>
-<p>futuramente será lançado o site do ian_topbr, que a data de lançamento prevista é em março</p>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone - Classificação Detalhada</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #141414; color: white; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; overflow-x: hidden; }
 
-<details>
-    <summary>porquê o lançamento vai demorar?</summary>
-    
-    <p>a produção do site se iniciou agora em 18/1/2026, mas estou tentando deixar o site o melhor possível, por isso será difícil programar, veja a Comunidade de <a  href="https://www.youtube.com/@ian_topbr">@ian_topbr</a> para mais novidades!</p>
-</details>
+        /* NAVBAR */
+        .navbar { position: fixed; top: 0; width: 100%; padding: 20px 4%; z-index: 100; background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent); }
+        .logo { color: #E50914; font-size: 1.8rem; font-weight: bold; }
 
-<details>
-    <summary>não encontro sua comunidade</summary>
-    
-    <p>certifique-se que você está pesquisando por @ian_topbr no YouTube, certifique-se também que a foto de perfil seja uma gata, se não for, não é meu canal, para encontrar a comunidade, vá para a aba inicial do canal e, clique em "comunidade" ou "posts"</p>
-</details>
+        /* BANNER */
+        .banner { 
+            height: 65vh; background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+            display: flex; flex-direction: column; justify-content: flex-end; 
+            padding: 0 4% 80px; border-bottom: 2px solid #222;
+        }
+        .banner-title { font-size: 4rem; font-weight: bold; margin-bottom: 15px; }
+        .banner-desc { font-size: 1.2rem; max-width: 600px; color: #a3a3a3; margin-bottom: 25px; line-height: 1.4; }
 
-<h1>veja a comunidade ian_topbr para mais!</h1>
+        .btn-play { 
+            padding: 12px 35px; background: white; color: black; border: none; 
+            border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 1.1rem; 
+            display: flex; align-items: center; gap: 10px; width: fit-content;
+        }
 
-<p>por favor, se chegou até aqui, deixe pelo menos uma inscrição isso me ajuda a continuar criando o site</p>
+        /* SEÇÕES */
+        .row { padding: 40px 4% 0; }
+        .row-title { font-size: 1.6rem; font-weight: bold; margin-bottom: 20px; color: #e5e5e5; }
+        .posters { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; }
+        .posters::-webkit-scrollbar { display: none; }
+        
+        .card-texto { 
+            min-width: 220px; height: 125px; 
+            background: #2f2f2f; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; text-align: center; cursor: pointer;
+            transition: 0.3s; font-weight: bold; border: 1px solid transparent;
+        }
+        .card-texto:hover { transform: scale(1.05); border-color: #fff; background: #333; }
 
-<h1>mais informações sobre o site</h1>
+        /* MODAL */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); 
+            display: none; justify-content: center; align-items: flex-start; 
+            z-index: 1000; overflow-y: auto; padding-top: 50px;
+        }
+        .modal-caixa { 
+            background: #181818; width: 90%; max-width: 900px; 
+            border-radius: 12px; overflow: hidden; margin-bottom: 50px;
+        }
+        
+        .video-box { position: relative; padding-bottom: 56.25%; height: 0; background: #000; }
+        .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
 
-<p>o site do ian_topbr será um site de vários vídeos, APKs, e talvez vídeos antes do lançamento no YouTube. por enquanto, só tenho essas informações, estou criando ideias ainda 🤠👍</p>
+        .modal-info { padding: 30px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-titulo { font-size: 2rem; font-weight: bold; }
+        .modal-fechar { background: none; border: 1px solid #444; color: white; padding: 8px 15px; border-radius: 50%; cursor: pointer; }
+        
+        .modal-desc-completa { font-size: 1.1rem; line-height: 1.6; color: #d2d2d2; border-top: 1px solid #333; padding-top: 20px; }
+        
+        /* LINHA DE CLASSIFICAÇÃO */
+        .classificacao-container { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .compativel { color: #46d369; font-weight: bold; }
+        .idade-tag { background: #444; color: #fff; padding: 2px 8px; border-radius: 3px; font-size: 0.9rem; font-weight: bold; }
+        .motivo-tag { color: #bcbcbc; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
 
-<h1>mais informações do lançamento</h1>
+    <nav class="navbar"><div class="logo">NETFLIX</div></nav>
 
-<p>sei que pode demorar muito até o lançamento, mas isso é porquê edito vídeos, programo vários outros sites, e na maioria do tempo estou jogando alguns jogos :/</p>
+    <header class="banner" id="banner">
+        <h1 class="banner-title" id="b-titulo"></h1>
+        <p class="banner-desc" id="b-desc"></p>
+        <button class="btn-play" onclick="playBanner()"><i class="fas fa-play"></i> Assistir</button>
+    </header>
 
-<h1>solicite ideias para o site!</h1>
+    <div id="vitrine"></div>
 
-<form action="https://formsubmit.co/caixadeentradadoian@gmail.com" method="POST">
-    
-    <label for="nome">Nome:</label>
-     <input type="name" name="nome" required placeholder=""><BR>
+    <div class="modal" id="modal">
+        <div class="modal-caixa">
+            <div id="player" class="video-box"></div>
+            
+            <div class="modal-info">
+                <div class="modal-header">
+                    <h2 class="modal-titulo" id="m-titulo"></h2>
+                    <button class="modal-fechar" onclick="fechar()">&times;</button>
+                </div>
+                
+                <div class="classificacao-container">
+                    <span class="compativel"></span>
+                    <span id="m-idade" class="idade-tag"></span>
+                    <span id="m-motivo" class="motivo-tag"></span>
+                </div>
 
-     <label for="message">Mensagem:</label>
-     <textarea name="message" required></textarea><br>
-     
-     <input type="checkbox" name="amigo">É Amigo do ian_topbr?<BR>
+                <p class="modal-desc-completa" id="m-desc"></p>
+            </div>
+        </div>
+    </div>
 
-     <button type="submit">Enviar</button>
-</form>
+    <script>
+        // Adicionei o campo "m" para o Motivo da classificação
+        const catalogo = [
+            {
+                categoria: "Principais",
+                filmes: [
+                    { t: "Nem trava...", d: "Mostra um travamento intenso", v: "4lFjjYbwvgg?si=Pm2p9yb4EXx3mt6P", i: "10", m: "Pode conter violência" },
+                   
+                ]
+            },
+            {
+                categoria: "Animação (Roblox)",
+                filmes: [
+                    { t: "Os Vídeo que o Youtube me Recomenda do nada", d: "RAHHH", v: "BEqlaAT_cSw?si=__9Y1gOa6CR0fE07", i: "Livre", m: "Recomendado para Todos" },
+                    { t: "Freedy Fazbear", d: "Ur Ur Ur Ur Ur ~ ian_topbr", v: "yY8a7aC_0e0?si=irVCL0wigcK_z0z9", i: "Livre", m: "Recomendado para Todos" },
+                    { t: "All my Fellas!", d: "ALL MY FELLAS, Nostalgia 2023", v: "xL065YvY40w?si=TB7kjI1ZYbA2_68C", i: "Livre", m: "Recomendado para Todos" },
+                ]
+            }
+        ];
+
+        const destaque = catalogo[0].filmes[0];
+
+        function carregarSite() {
+            document.getElementById('b-titulo').innerText = destaque.t;
+            document.getElementById('b-desc').innerText = destaque.d;
+
+            const vitrine = document.getElementById('vitrine');
+            catalogo.forEach(sec => {
+                let html = `<div class="row"><p class="row-title">${sec.categoria}</p><div class="posters">`;
+                sec.filmes.forEach(f => {
+                    html += `<div class="card-texto" onclick='abrir(${JSON.stringify(f)})'>${f.t}</div>`;
+                });
+                html += `</div></div>`;
+                vitrine.innerHTML += html;
+            });
+        }
+
+        function abrir(filme) {
+            document.getElementById('m-titulo').innerText = filme.t;
+            document.getElementById('m-desc').innerText = filme.d;
+            document.getElementById('m-idade').innerText = filme.i;
+            document.getElementById('m-motivo').innerText = filme.m; // CARREGA O MOTIVO AQUI
+            
+            document.getElementById('player').innerHTML = `<iframe src="https://www.youtube.com/embed/${filme.v}?autoplay=1" allow="autoplay; fullscreen"></iframe>`;
+            document.getElementById('modal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function fechar() {
+            document.getElementById('modal').style.display = 'none';
+            document.getElementById('player').innerHTML = '';
+            document.body.style.overflow = 'auto';
+        }
+
+        function playBanner() { abrir(destaque); }
+
+        carregarSite();
+    </script>
+</body>
+</html><br>
+
+<H2>você está na versão pré-alpha 0.1, atualizações futuras vai trazer mais vídeos</H2>
